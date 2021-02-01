@@ -17,6 +17,6 @@
   )
 
 (defn file-name [meeting-name]
-  (str (clojure.string/replace meeting-name #" " "-") ".log"))
+  (str (clojure.string/replace meeting-name #" " "-") ".md"))
 
-(map #(spit (file-name %) (clojure.string/join "\n---\n" (extract-messages % json))) meetings)
+(map #(spit (file-name %) (clojure.string/join "\n\n" (extract-messages % json))) meetings)
