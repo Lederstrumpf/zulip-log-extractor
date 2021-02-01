@@ -1,10 +1,14 @@
 (ns zulip-log-extractor.core
-  (:use [clojure.data.json :as json])
+  (:use [clojure.java.shell :only [sh]]
+        [clojure.data.json :as json])
   (:gen-class))
 
-(def data (slurp "messages-000001.json"))
+(def data-files (filter #(re-seq #"messages-\d{6}.json" %) (clojure.string/split-lines (:out (sh "ls")))))
 
-(def json (second (first (json/read-str data :key-fn keyword))))
+(defn extract-json [raw-data]
+  (second (first (json/read-str raw-data :key-fn keyword))))
+
+(def json (reduce (fn [v file] (concat v (extract-json (slurp file)))) [] data-files))
 
 (def meetings (filter #(re-find #"meeting*" %) (distinct (map :subject json))))
 
